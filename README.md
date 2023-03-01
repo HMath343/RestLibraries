@@ -7,7 +7,9 @@ This project is aimed to compare performance between Restfit & Restsharp library
 
 ## Result
 
-``` Config
+** Config ** 
+
+``` 
 
 BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
@@ -15,8 +17,10 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
   [Host]     : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
   DefaultJob : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
 
-``` Run 1
+```
 
+** Run 1 **  
+```
 |                       Method |       Mean |      Error |     StdDev |     Median |    Gen0 |    Gen1 |   Gen2 | Allocated |
 |----------------------------- |-----------:|-----------:|-----------:|-----------:|--------:|--------:|-------:|----------:|
 | RestsharpClientInstanciation |   1.786 μs |  0.0340 μs |  0.0443 μs |   1.800 μs |  0.3071 |  0.0057 | 0.0019 |   3.77 KB |
@@ -25,11 +29,10 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 |                RefitGetFilms | 804.518 μs | 27.2178 μs | 74.9657 μs | 772.008 μs |  3.9063 |  0.9766 |      - |  58.54 KB |
 |         RestsharpGetFilmById | 549.706 μs | 10.1179 μs | 25.7533 μs | 538.561 μs |  4.8828 |       - |      - |  62.34 KB |
 |             RefitGetFilmById | 516.559 μs |  4.9200 μs |  4.6022 μs | 516.296 μs |  0.9766 |       - |      - |  12.15 KB |
-
 ```
  
-``` Run 2
-
+** Run 2 **
+```
 |                       Method |       Mean |     Error |    StdDev |    Gen0 |    Gen1 |   Gen2 | Allocated |
 |----------------------------- |-----------:|----------:|----------:|--------:|--------:|-------:|----------:|
 | RestsharpClientInstanciation |   1.752 us | 0.0197 us | 0.0184 us |  0.3071 |  0.0057 | 0.0019 |   3.77 KB |
@@ -38,10 +41,10 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 |                RefitGetFilms | 756.474 us | 8.4349 us | 7.4773 us |  3.9063 |       - |      - |  58.87 KB |
 |         RestsharpGetFilmById | 542.903 us | 5.9873 us | 5.6005 us |  4.8828 |       - |      - |  62.39 KB |
 |             RefitGetFilmById | 518.222 us | 3.8545 us | 3.2187 us |  0.9766 |       - |      - |  12.15 KB |
-
 ```
 
-``` Run 3
+** Run 3 **
+```
 
 |                       Method |       Mean |      Error |     StdDev |     Median |    Gen0 |    Gen1 |   Gen2 | Allocated |
 |----------------------------- |-----------:|-----------:|-----------:|-----------:|--------:|--------:|-------:|----------:|
@@ -65,12 +68,10 @@ API project using minimal API.
 
 Contain classes to run Benchmark
 
-Resource : 
+## Resource 
 
-[Star wars public API](https://swapi.dev/) 
-- Used JSON payload
-[Star wars SharpTrooper](https://github.com/olcay/SharpTrooper)
-- Used model class
+- Used JSON payload [Star wars public API](https://swapi.dev/) 
+- Used model class [Star wars SharpTrooper](https://github.com/olcay/SharpTrooper)
 
 ## Running benchmark
 

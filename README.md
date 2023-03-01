@@ -3,23 +3,22 @@
 ##  Goal
 
 This project is aimed to compare performance between Restfit & Restsharp library by consuming a local API.
+
+
 *HTTPClient hasn't been considered as boiler plate will outweight benefit of using Refit/Restsharp*
 
 ## Result
 
-** Config ** 
-
+### Config 
 ``` 
-
 BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
 .NET SDK=6.0.405
   [Host]     : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
   DefaultJob : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
-
 ```
 
-** Run 1 **  
+### Run 1 
 ```
 |                       Method |       Mean |      Error |     StdDev |     Median |    Gen0 |    Gen1 |   Gen2 | Allocated |
 |----------------------------- |-----------:|-----------:|-----------:|-----------:|--------:|--------:|-------:|----------:|
@@ -31,7 +30,7 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 |             RefitGetFilmById | 516.559 μs |  4.9200 μs |  4.6022 μs | 516.296 μs |  0.9766 |       - |      - |  12.15 KB |
 ```
  
-** Run 2 **
+### Run 2
 ```
 |                       Method |       Mean |     Error |    StdDev |    Gen0 |    Gen1 |   Gen2 | Allocated |
 |----------------------------- |-----------:|----------:|----------:|--------:|--------:|-------:|----------:|
@@ -43,9 +42,8 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 |             RefitGetFilmById | 518.222 us | 3.8545 us | 3.2187 us |  0.9766 |       - |      - |  12.15 KB |
 ```
 
-** Run 3 **
+### Run 3
 ```
-
 |                       Method |       Mean |      Error |     StdDev |     Median |    Gen0 |    Gen1 |   Gen2 | Allocated |
 |----------------------------- |-----------:|-----------:|-----------:|-----------:|--------:|--------:|-------:|----------:|
 | RestsharpClientInstanciation |   1.846 us |  0.0352 us |  0.0419 us |   1.855 us |  0.3071 |  0.0057 | 0.0019 |   3.77 KB |
@@ -54,7 +52,6 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 |                RefitGetFilms | 748.744 us |  6.5500 us |  5.8064 us | 747.344 us |  3.9063 |  0.9766 |      - |  58.83 KB |
 |         RestsharpGetFilmById | 545.835 us |  5.1056 us |  4.7758 us | 546.611 us |  4.8828 |       - |      - |  62.33 KB |
 |             RefitGetFilmById | 572.614 us | 20.0200 us | 59.0293 us | 540.195 us |  0.9766 |       - |      - |  12.14 KB |
-
 ``` 
 
 ## Description 
@@ -62,6 +59,8 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 ### Benchmark.RestLibraries.API 
 
 API project using minimal API. 
+
+
 *Boiler plate as been limited to have the fatest response as we're trying to mesure Refit/Resharp consuming this API.*
 
 ### Benchmark.RestLibraries.Core 

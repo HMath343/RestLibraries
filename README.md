@@ -61,7 +61,7 @@ BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
 API project using minimal API. 
 
 
-*Boiler plate as been limited to have the fatest response as we're trying to mesure Refit/Resharp consuming this API.*
+*Boiler plate has been limited to have the fatest response as we're trying to mesure Refit/Resharp consuming this API.*
 
 ### Benchmark.RestLibraries.Core 
 

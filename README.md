@@ -9,6 +9,12 @@ This project is aimed to compare performance between Restfit & Restsharp library
 
 ## Result
 
+Looks that Refit is doing better overall in memory allocation & would perform better if Client is instanciated as a singleton.
+
+Note :
+
+- DotnetBenchMark may not be the best use of technology here due to network latency but with a few run, we could see a trend.
+
 ### Config 
 ``` 
 BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)

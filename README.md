@@ -1,85 +1,152 @@
-# Benchmark.DotNet.RestLibraries
+# RestLibraries 
 
-##  Goal
+A project aiming to compare different API client libraries usage & performance in a project respecting clean architecture principle.
 
-This project is aimed to compare performance between Restfit & Restsharp library by consuming a local API.
+Use case :
+- A user trying to save a payment in a different currency
+- An external call to an API giving back rates between two currency
+    - For benchmark test purpose, it has been hardcoded with the payload of [Free forex API](https://www.freeforexapi.com/api/live?pairs=EURGBP)
 
+## Project
 
-*HTTPClient hasn't been considered as boiler plate will outweight benefit of using Refit/Restsharp*
+Simple API endpoint taking payment data and using different library to call a external API. 
+- *No persistence as it's aimed to measure library performance*
 
-## Result
+### RestLibraries.API
 
-Looks that Refit is doing better overall in memory allocation & would perform better if Client is instanciated as a singleton.
+Minimal API aimed to avoid rate limiting and network latency for Benchmark performances
 
-Note :
+docker build -t restlibraries-api .
+docker run -d -p 80:80 --name restlibraries-api restlibraries-api
 
-- DotnetBenchMark may not be the best use of technology here due to network latency but with a few run, we could see a trend.
+### RestLibraries 
 
-### Config 
-``` 
-BenchmarkDotNet=v0.13.4, OS=Windows 10 (10.0.19045.2604)
+Project respecting Clean Architecture & using one endpoint / handler doing the same process for each library.
+- Take a payment payload
+- If currency is different, makes an external API call to get the rates between currency
+- Return payment result
+
+- An post payment endpoint per API client library :
+    - [HttpClient](https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient-guidelines)
+    - [Refit](https://github.com/reactiveui/refit)
+    - [Restsharp](https://github.com/restsharp/RestSharp)
+
+## Benchmark
+
+### Running the bench mark
+
+- cd .\RestLibraries\test\BenchMarkTests
+- dotnet test --filter "Category=HttpClient" -c Release
+- dotnet test --filter "Category=Refit" -c Release
+- dotnet test --filter "Category=Restsharp" -c Release
+
+### Issue & note
+
+Benchmark aren't running smoothly due to .NetCore HttpClient connection pool management (build with HttpClientFactory under the hood).
+It's still a bit blurry and I may have made a rookie mistake somewhere.
+[Dotnet runtime github issue](https://github.com/dotnet/runtime/issues/43764)
+
+```
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.InitialFillAsync(Boolean async)
+   at System.Net.Http.HttpConnection.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+```
+
+I've tried a few things without luck :
+    - Make sure HttpClient was implemented as a singleton to make sure that it's not disposed
+    - Playing with MaxConnectionsPerServer settings for HttpClient
+    ```
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new SocketsHttpHandler()
+            {
+                MaxConnectionsPerServer = 10
+            };
+        })
+    ```
+
+### Result 
+
+1. HttpClient
+
+```
+BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2728/22H2/2022Update)
 11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
 .NET SDK=6.0.405
-  [Host]     : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
-  DefaultJob : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
+  [Host]   : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
+  ShortRun : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
+
+Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
 ```
 
-### Run 1 
+|               Method |     Mean |    Error |    StdDev |   Gen0 |   Gen1 | Allocated |
+|--------------------- |---------:|---------:|----------:|-------:|-------:|----------:|
+| BenchMark_HttpClient | 8.763 μs | 4.231 μs | 0.2319 μs | 0.2289 | 0.1221 |   3.18 KB |
+
+2. Refit
+
 ```
-|                       Method |       Mean |      Error |     StdDev |     Median |    Gen0 |    Gen1 |   Gen2 | Allocated |
-|----------------------------- |-----------:|-----------:|-----------:|-----------:|--------:|--------:|-------:|----------:|
-| RestsharpClientInstanciation |   1.786 μs |  0.0340 μs |  0.0443 μs |   1.800 μs |  0.3071 |  0.0057 | 0.0019 |   3.77 KB |
-|     RefitClientInstanciation |  20.749 μs |  0.1702 μs |  0.1592 μs |  20.653 μs |  1.1292 |  0.0305 |      - |  14.15 KB |
-|            RestsharpGetFilms | 950.939 μs | 34.9955 μs | 97.5534 μs | 918.690 μs | 28.3203 | 10.7422 |      - | 346.89 KB |
-|                RefitGetFilms | 804.518 μs | 27.2178 μs | 74.9657 μs | 772.008 μs |  3.9063 |  0.9766 |      - |  58.54 KB |
-|         RestsharpGetFilmById | 549.706 μs | 10.1179 μs | 25.7533 μs | 538.561 μs |  4.8828 |       - |      - |  62.34 KB |
-|             RefitGetFilmById | 516.559 μs |  4.9200 μs |  4.6022 μs | 516.296 μs |  0.9766 |       - |      - |  12.15 KB |
-```
- 
-### Run 2
-```
-|                       Method |       Mean |     Error |    StdDev |    Gen0 |    Gen1 |   Gen2 | Allocated |
-|----------------------------- |-----------:|----------:|----------:|--------:|--------:|-------:|----------:|
-| RestsharpClientInstanciation |   1.752 us | 0.0197 us | 0.0184 us |  0.3071 |  0.0057 | 0.0019 |   3.77 KB |
-|     RefitClientInstanciation |  20.407 us | 0.1474 us | 0.1307 us |  1.1292 |  0.0305 |      - |  14.15 KB |
-|            RestsharpGetFilms | 864.620 us | 7.0563 us | 5.8923 us | 28.3203 | 10.7422 |      - | 346.97 KB |
-|                RefitGetFilms | 756.474 us | 8.4349 us | 7.4773 us |  3.9063 |       - |      - |  58.87 KB |
-|         RestsharpGetFilmById | 542.903 us | 5.9873 us | 5.6005 us |  4.8828 |       - |      - |  62.39 KB |
-|             RefitGetFilmById | 518.222 us | 3.8545 us | 3.2187 us |  0.9766 |       - |      - |  12.15 KB |
+BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2728/22H2/2022Update)
+11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK=6.0.405
+  [Host]   : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
+  ShortRun : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
+
+Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
 ```
 
-### Run 3
+|          Method |     Mean |    Error |   StdDev |   Gen0 |   Gen1 | Allocated |
+|---------------- |---------:|---------:|---------:|-------:|-------:|----------:|
+| BenchMark_Refit | 25.26 μs | 28.64 μs | 1.570 μs | 0.7324 | 0.0610 |   9.11 KB |
+
+3. Restsharp
+
+*Only library to throw socket exception with Job.ShortRun*
+
 ```
-|                       Method |       Mean |      Error |     StdDev |     Median |    Gen0 |    Gen1 |   Gen2 | Allocated |
-|----------------------------- |-----------:|-----------:|-----------:|-----------:|--------:|--------:|-------:|----------:|
-| RestsharpClientInstanciation |   1.846 us |  0.0352 us |  0.0419 us |   1.855 us |  0.3071 |  0.0057 | 0.0019 |   3.77 KB |
-|     RefitClientInstanciation |  20.780 us |  0.4135 us |  0.4762 us |  20.704 us |  1.1292 |  0.0305 |      - |  14.15 KB |
-|            RestsharpGetFilms | 853.993 us | 14.5339 us | 12.1364 us | 853.673 us | 28.3203 | 10.7422 |      - | 346.97 KB |
-|                RefitGetFilms | 748.744 us |  6.5500 us |  5.8064 us | 747.344 us |  3.9063 |  0.9766 |      - |  58.83 KB |
-|         RestsharpGetFilmById | 545.835 us |  5.1056 us |  4.7758 us | 546.611 us |  4.8828 |       - |      - |  62.33 KB |
-|             RefitGetFilmById | 572.614 us | 20.0200 us | 59.0293 us | 540.195 us |  0.9766 |       - |      - |  12.14 KB |
-``` 
+BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.2728/22H2/2022Update)
+11th Gen Intel Core i7-11800H 2.30GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK=6.0.405
+  [Host]   : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
+  ShortRun : .NET 6.0.13 (6.0.1322.58009), X64 RyuJIT AVX2
 
-## Description 
-
-### Benchmark.RestLibraries.API 
-
-API project using minimal API. 
+Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+```
+|              Method |     Mean |     Error |   StdDev |   Gen0 |   Gen1 | Allocated |
+|-------------------- |---------:|----------:|---------:|-------:|-------:|----------:|
+| BenchMark_Restsharp | 82.16 μs | 238.85 μs | 13.09 μs | 2.4414 | 0.7324 |  26.81 KB |
 
 
-*Boiler plate has been limited to have the fatest response as we're trying to mesure Refit/Resharp consuming this API.*
+With singleton
 
-### Benchmark.RestLibraries.Core 
+```
+|              Method |     Mean |    Error |   StdDev |   Gen0 |   Gen1 | Allocated |
+|-------------------- |---------:|---------:|---------:|-------:|-------:|----------:|
+| BenchMark_Restsharp | 116.4 μs | 352.7 μs | 19.33 μs | 2.4414 | 0.9766 |  29.62 KB |
+```
 
-Contain classes to run Benchmark
+### Wrap-up
 
-## Resource 
+As all software engineering issue, best answer would be **it depends**.
 
-- Used JSON payload [Star wars public API](https://swapi.dev/) 
-- Used model class [Star wars SharpTrooper](https://github.com/olcay/SharpTrooper)
+1. HttpClient 
+    - It will induce a bit more boiler plate as you have to implement your own json serialization/deserialization & HttpRequest exception handling
+    - Best performance usage for API endpoint needing an high throughput
+        - I'd consider this if DB access isn't a bottleneck & endpoint are called a lot
+    - Easy to make mistakes with disposable objects (stream, ...)
+2. Refit
+    - Library with the least amount of boilerplate
+    - Performance isn't that far for HttpClient (need to confirm with huge json payload)
+    - Library hasn't been updated since 08/02/2022
+3. Followed by Restsharp 
+    - Less boilerplate than HttpClient but more than Refit (easy concept)
+    - Benchmark looks to have too much error to be reliable except highest memory allocation
+    - Active development
 
-## Running benchmark
-
-    - docker build -t benchmark-restlibraries-api -f Dockerfile .
-    - docker run -d -p 80:80 benchmark-restlibraries-api
-    - dotnet run -p BenchMark.DotNet.RestLibraries.Core.csproj -c Release
+Further reading :
+- https://github.com/joseftw/jos.httpclient
+- https://www.stevejgordon.co.uk/httpclient-connection-pooling-in-dotnet-core
+- https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/

@@ -132,7 +132,7 @@ With singleton
 
 ### Wrap-up
 
-As all software engineering issue, best answer would be **it depends**.
+As all software engineering question, best answer would be **it depends**.
 
 1. HttpClient 
     - It will induce a bit more boiler plate as you have to implement your own json serialization/deserialization & HttpRequest exception handling
@@ -143,9 +143,9 @@ As all software engineering issue, best answer would be **it depends**.
     - Library with the least amount of boilerplate
     - Performance isn't that far for HttpClient (need to confirm with huge json payload)
     - Library hasn't been updated since 08/02/2022
-3. Followed by Restsharp 
-    - Less boilerplate than HttpClient but more than Refit (easy concept)
-    - Benchmark looks to have too much error to be reliable except highest memory allocation
+3. Restsharp 
+    - Less boilerplate than HttpClient but more than Refit
+    - Benchmark looks to have too much error to be reliable except memory allocation
     - Active development
 
 Further reading :

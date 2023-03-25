@@ -1,6 +1,6 @@
 # RestLibraries 
 
-A project aiming to compare different API client libraries usage & performance in a project respecting clean architecture principle.
+A project aimed to compare different .NET API client libraries.
 
 Use case :
 - A user trying to save a payment in a different currency

@@ -53,17 +53,19 @@ It's still a bit blurry and I may have made a rookie mistake somewhere.
 ```
 
 I've tried a few things without luck :
-    - Make sure HttpClient was implemented as a singleton to make sure that it's not disposed
-    - Playing with MaxConnectionsPerServer settings for HttpClient
-    ```
-        .ConfigurePrimaryHttpMessageHandler(() =>
+
+- Make sure HttpClient was implemented as a singleton to make sure that it's not disposed
+- Playing with MaxConnectionsPerServer settings for HttpClient
+
+```
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new SocketsHttpHandler()
         {
-            return new SocketsHttpHandler()
-            {
-                MaxConnectionsPerServer = 10
-            };
-        })
-    ```
+            MaxConnectionsPerServer = 10
+        };
+    })
+```
 
 ### Result 
 

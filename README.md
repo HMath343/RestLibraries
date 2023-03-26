@@ -86,6 +86,12 @@ WarmupCount=3
 |--------------------- |---------:|---------:|----------:|-------:|-------:|----------:|
 | BenchMark_HttpClient | 8.763 μs | 4.231 μs | 0.2319 μs | 0.2289 | 0.1221 |   3.18 KB |
 
+Updated (With System.Net.Http.Json deserialisation)
+
+|               Method |     Mean |     Error |   StdDev |   Gen0 |   Gen1 | Allocated |
+|--------------------- |---------:|----------:|---------:|-------:|-------:|----------:|
+| BenchMark_HttpClient | 7.752 μs | 42.137 μs | 2.310 μs | 0.3510 | 0.1907 |   4.28 KB |
+
 2. Refit
 
 ```
@@ -135,7 +141,7 @@ With singleton
 As all software engineering question, best answer would be **it depends**.
 
 1. HttpClient 
-    - It will induce a bit more boiler plate as you have to implement your own json serialization/deserialization & HttpRequest exception handling
+    - It will induce a bit more boiler plate due to HttpRequest exception handling
     - Best performance usage for API endpoint needing an high throughput
         - I'd consider this if DB access isn't a bottleneck & endpoint are called a lot
     - Easy to make mistakes with disposable objects (stream, ...)
@@ -152,3 +158,5 @@ Further reading :
 - https://github.com/joseftw/jos.httpclient
 - https://www.stevejgordon.co.uk/httpclient-connection-pooling-in-dotnet-core
 - https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
+
+- https://www.stevejgordon.co.uk/sending-and-receiving-json-using-httpclient-with-system-net-http-json
